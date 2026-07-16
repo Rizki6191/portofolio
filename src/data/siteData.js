@@ -39,6 +39,16 @@ export const writeups = [
     description: 'Security / Planning',
     link: 'https://github.com',
   },
+  {
+    title: 'Threat Modeling Notes',
+    description: 'Security / Planning',
+    link: 'https://github.com',
+  },
+  {
+    title: 'Threat Modeling Notes',
+    description: 'Security / Planning',
+    link: 'https://github.com',
+  },
 ]
 
 export const projects = [
