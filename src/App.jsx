@@ -62,8 +62,8 @@ function App() {
                 type="button"
                 onClick={() => setPage(item.id)}
                 className={`px-4 py-2 text-sm transition ${page === item.id
-                    ? 'border -bg-conic-0 text-emerald-300'
-                    : 'text-[#b7c0b1] hover:text-emerald-300'
+                  ? 'border -bg-conic-0 text-emerald-300'
+                  : 'text-[#b7c0b1] hover:text-emerald-300'
                   }`}
               >
                 {item.label}
@@ -279,26 +279,26 @@ function App() {
         )}
       </main>
       <footer>
-  <div className="mx-auto max-w-5xl border-t border-white/10">
-    <div className="flex items-center justify-center gap-6 px-6 py-5 md:justify-end lg:px-8">
-      <a
-        href="mailto:sponge27riz@gmail.com"
-        className="text-lg text-emerald-300 transition hover:underline md:text-xl"
-      >
-        Contact
-      </a>
+        <div className="mx-auto max-w-5xl border-t border-white/10">
+          <div className="flex items-center justify-center gap-6 px-6 py-5 md:justify-end lg:px-8">
+            <a
+              href="mailto:sponge27riz@gmail.com"
+              className="text-lg text-emerald-300 transition hover:underline md:text-xl"
+            >
+              Contact
+            </a>
 
-      <a
-        href="https://github.com/Rizki6191"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-lg text-emerald-300 transition hover:underline md:text-xl"
-      >
-        GitHub
-      </a>
-    </div>
-  </div>
-</footer>
+            <a
+              href="https://github.com/Rizki6191"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lg text-emerald-300 transition hover:underline md:text-xl"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
