@@ -37,6 +37,8 @@ function App() {
   const hasWriteups = writeups.length > 0
   const hasProjects = projects.length > 0
 
+  const [menuOpen, setMenuOpen] = useState(false)
+
   const goToPage = (section, nextPage) => {
     setPagination((current) => ({
       ...current,
@@ -55,20 +57,68 @@ function App() {
             </div>
           </div>
 
-          <nav className="flex items-center gap-2">
-            {navItems.map((item) => (
+          <nav className="relative flex items-center gap-2">
+            {/* Desktop Navigation */}
+            <div className="hidden items-center gap-2 md:flex">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setPage(item.id)}
+                  className={`px-4 py-2 text-sm transition ${page === item.id
+                      ? 'border -bg-conic-0 text-emerald-300'
+                      : 'text-[#b7c0b1] hover:text-emerald-300'
+                    }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
               <button
-                key={item.id}
                 type="button"
-                onClick={() => setPage(item.id)}
-                className={`px-4 py-2 text-sm transition ${page === item.id
-                  ? 'border -bg-conic-0 text-emerald-300'
-                  : 'text-[#b7c0b1] hover:text-emerald-300'
-                  }`}
+                onClick={() => setMenuOpen((current) => !current)}
+                aria-label="Open menu"
+                className="flex items-center justify-center rounded-lg p-2 text-emerald-300 transition hover:bg-white/5"
               >
-                {item.label}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="size-5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M2 3.75A.75.75 0 0 1 2.75 3h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75ZM2 8a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm0 4.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               </button>
-            ))}
+
+              {/* Dropdown */}
+              {menuOpen && (
+                <div className="absolute right-0 top-12 z-30 w-40 rounded-xl border border-emerald-500/10 bg-[#121512] p-2 shadow-xl">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setPage(item.id)
+                        setMenuOpen(false)
+                      }}
+                      className={`block w-full rounded-lg px-4 py-3 text-left text-sm transition mt-1 ${page === item.id
+                          ? 'border -bg-conic-0 text-emerald-300'
+                          : 'text-[#b7c0b1] hover:bg-white/5 hover:text-emerald-300'
+                        }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
         </div>
       </header>
@@ -113,7 +163,7 @@ function App() {
               </div>
             </div> */}
 
-            <div className="justify-center rounded-2xl border border-emerald-500/10 bg-[#121512]/80 p-6">
+            <div className="rounded-2xl border border-emerald-500/10 bg-[#121512]/80 p-6">
               <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">Profile</p>
               <h2 className="mt-3 text-2xl font-bold text-[#f3f5ef]">Rizki Syahrul Ramadhan</h2>
               <p className="mt-2 text-sm leading-6 text-[#b7c0b1]">
@@ -135,35 +185,41 @@ function App() {
         )}
 
         {page === 'writeups' && (
-          <section className="rounded-2xl border border-emerald-500/10 bg-[#121512]/90 p-7">
-            <div className="mb-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-300">Writeups</p>
-              <h2 className="mt-3 text-3xl font-bold text-[#f0f3ec]">Research notes</h2>
-            </div>
+          <section className="rounded-2xl border border-emerald-500/10 bg-[#121512]/80 p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">writeups</p>
+
 
             {hasWriteups ? (
-              <>
+              <div className="mt-6">
                 <div className="grid gap-4 md:grid-cols-3">
-                  {paginatedWriteups.map((item) => (
-                    <article key={item.title} className="rounded-2xl border border-emerald-500/10 bg-black/20 p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-xl font-semibold text-[#f4f6f1]">{item.title}</h3>
-                          <p className="mt-3 text-xs tracking-[0.24em] text-emerald-300">{item.description}</p>
+                  {paginatedWriteups.map((item, index) => (
+                    <article key={`${item.title}-${index}`} className="flex rounded-2xl border border-emerald-500/10 bg-black/20 p-4">
+                      <div className="flex w-full items-center justify-between gap-4">
+
+                        <div className="flex-1">
+                          <p className="text-xs uppercase tracking-[0.25em] text-emerald-300">{item.title}</p>
+                          <p className="mt-2 text-sm text-[#d7ddd2]">{item.description}</p>
                         </div>
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open ${item.title}`}
-                          className="mt-1 text-2xl text-emerald-300 transition hover:text-emerald-200"
-                        >
-                          ↗
-                        </a>
+
+                        <div className="flex items-center justify-end">
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${item.title}`}
+                            className="flex items-center justify-center rounded-lg bg-black/30 p-2 text-emerald-300 transition duration-200 hover:-translate-y-1 hover:text-emerald-200"
+                          >
+                            <svg xmlns="http://w3.org" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                              <path fillRule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
+                            </svg>
+                          </a>
+                        </div>
+
                       </div>
                     </article>
                   ))}
                 </div>
+
 
                 <div className="mt-6 flex items-center justify-center gap-3 text-sm text-[#b7c0b1]">
                   <button
@@ -172,7 +228,10 @@ function App() {
                     disabled={pagination.writeups === 1}
                     className="flex items-center gap-2 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <span aria-hidden="true">←</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                      <path fillRule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" clipRule="evenodd" />
+                    </svg>
+
                     <span>Previous</span>
                   </button>
                   <div className="flex items-center gap-3">
@@ -194,12 +253,15 @@ function App() {
                     className="flex items-center gap-2 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <span>Next</span>
-                    <span aria-hidden="true">→</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                      <path fillRule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clipRule="evenodd" />
+                    </svg>
+
                   </button>
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-emerald-500/20 bg-black/20 px-6 py-10 text-center text-sm text-[#b7c0b1]">
+              <div className="mt-6 rounded-2xl border border-dashed border-emerald-500/20 bg-black/20 px-6 py-10 text-center text-sm text-[#b7c0b1]">
                 404
               </div>
             )}
@@ -207,31 +269,45 @@ function App() {
         )}
 
         {page === 'projects' && (
-          <section className="rounded-2xl border border-emerald-500/10 bg-[#121512]/90 p-7">
-            <div className="mb-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-300">Project</p>
-              <h2 className="mt-3 text-3xl font-bold text-[#f0f3ec]">Selected works</h2>
-            </div>
+          <section className="rounded-2xl border border-emerald-500/10 bg-[#121512]/80 p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">
+              projects
+            </p>
 
             {hasProjects ? (
-              <>
+              <div className="mt-6">
                 <div className="grid gap-4 md:grid-cols-3">
-                  {paginatedProjects.map((item) => (
-                    <article key={item.title} className="rounded-2xl border border-emerald-500/10 bg-black/20 p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-xl font-semibold text-[#f4f6f1]">{item.title}</h3>
-                          <p className="mt-3 text-xs tracking-[0.24em] text-emerald-300">{item.description}</p>
+                  {paginatedProjects.map((item, index) => (
+                    <article
+                      key={`${item.title}-${index}`}
+                      className="flex rounded-2xl border border-emerald-500/10 bg-black/20 p-4"
+                    >
+                      <div className="flex w-full items-center justify-between gap-4">
+
+                        <div className="flex-1">
+                          <p className="text-xs uppercase tracking-[0.25em] text-emerald-300">
+                            {item.title}
+                          </p>
+
+                          <p className="mt-2 text-sm text-[#d7ddd2]">
+                            {item.description}
+                          </p>
                         </div>
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open ${item.title}`}
-                          className="mt-1 text-2xl text-emerald-300 transition hover:text-emerald-200"
-                        >
-                          ↗
-                        </a>
+
+                        <div className="flex items-center justify-end">
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${item.title}`}
+                            className="flex items-center justify-center rounded-lg bg-black/30 p-2 text-emerald-300 transition duration-200 hover:-translate-y-1 hover:text-emerald-200"
+                          >
+                            <svg xmlns="http://w3.org" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                              <path fillRule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
+                            </svg>
+                          </a>
+                        </div>
+
                       </div>
                     </article>
                   ))}
@@ -244,21 +320,38 @@ function App() {
                     disabled={pagination.projects === 1}
                     className="flex items-center gap-2 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <span aria-hidden="true">←</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="size-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+
                     <span>Previous</span>
                   </button>
+
                   <div className="flex items-center gap-3">
                     {Array.from({ length: projectPages }, (_, index) => (
                       <button
                         key={`project-${index + 1}`}
                         type="button"
                         onClick={() => goToPage('projects', index + 1)}
-                        className={`transition ${pagination.projects === index + 1 ? 'text-emerald-300' : 'hover:text-emerald-300'}`}
+                        className={`transition ${pagination.projects === index + 1
+                          ? 'text-emerald-300'
+                          : 'hover:text-emerald-300'
+                          }`}
                       >
                         {index + 1}
                       </button>
                     ))}
                   </div>
+
                   <button
                     type="button"
                     onClick={() => goToPage('projects', pagination.projects + 1)}
@@ -266,12 +359,24 @@ function App() {
                     className="flex items-center gap-2 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <span>Next</span>
-                    <span aria-hidden="true">→</span>
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="size-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </button>
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-emerald-500/20 bg-black/20 px-6 py-10 text-center text-sm text-[#b7c0b1]">
+              <div className="mt-6 rounded-2xl border border-dashed border-emerald-500/20 bg-black/20 px-6 py-10 text-center text-sm text-[#b7c0b1]">
                 404
               </div>
             )}
