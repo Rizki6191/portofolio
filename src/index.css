@@ -9,18 +9,31 @@
   color-scheme: dark;
   font-family: "JetBrains Mono", monospace;
   background: #0f110f;
+  color: #d9ddd6;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
+html.theme-light {
+  color-scheme: light;
+}
+
+html.theme-light body {
+  background: #f3f7ee;
+  color: #18231c;
+}
+
+html.theme-dark body {
+  background: #0f110f;
+  color: #d9ddd6;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #0f110f;
-  color: #d9ddd6;
   font-family: "JetBrains Mono", monospace;
 }
 
