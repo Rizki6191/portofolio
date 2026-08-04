@@ -9,6 +9,16 @@ export const writeups = [
     link: 'https://github.com/Rizki6191/Chall',
     image: writeupChall,
   },
+  {
+    title: 'Threat Modeling Notes',
+    description: 'Security / Planning',
+    link: 'https://github.com',
+  },
+  {
+    title: 'Threat Modeling Notes',
+    description: 'Security / Planning',
+    link: 'https://github.com',
+  },
 ]
 
 export const projects = [
