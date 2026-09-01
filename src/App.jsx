@@ -182,6 +182,8 @@ function App() {
                   <div className={cardClass}>
                     <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>Skills</p>
                     <p className="mt-2">Scripting, code debugging, Data Flow Diagram, penetration testing.</p>
+                    <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>Skills</p>
+                    <p className="mt-2">Scripting, code debugging, Data Flow Diagram, penetration testing.</p>
                   </div>
                   <div className={cardClass}>
                     <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>Stacks</p>
@@ -243,6 +245,31 @@ function App() {
                       </article>
                     ))}
                   </div>
+                          <div className="flex items-center justify-end">
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Open ${item.title}`}
+                              className={`flex items-center justify-center rounded-lg p-2 transition duration-200 hover:-translate-y-1 ${iconSurfaceClass} ${accentTextClass} ${accentHoverClass}`}
+                            >
+                              <svg xmlns="http://www.w3.org" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                                <path fillRule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
+                              </svg>
+                            </a>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div className={`mt-6 flex items-center justify-center gap-3 text-sm ${mutedTextClass}`}>
+                    <button
+                      type="button"
+                      onClick={() => goToPage('writeups', pagination.writeups - 1)}
+                      disabled={pagination.writeups === 1}
+                      className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
+                    >
 
                   <div className={`mt-6 flex items-center justify-center gap-3 text-sm ${mutedTextClass}`}>
                     <button
@@ -256,7 +283,37 @@ function App() {
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                         <path fillRule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" clipRule="evenodd" />
                       </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                        <path fillRule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" clipRule="evenodd" />
+                      </svg>
 
+                      <span>Previous</span>
+                    </button>
+                    <div className="flex items-center gap-3">
+                      {Array.from({ length: writeupPages }, (_, index) => (
+                        <button
+                          key={`writeup-${index + 1}`}
+                          type="button"
+                          onClick={() => goToPage('writeups', index + 1)}
+                          className={`transition ${pagination.writeups === index + 1 ? accentTextClass : `${accentHoverClass}`}`}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goToPage('writeups', pagination.writeups + 1)}
+                      disabled={pagination.writeups === writeupPages}
+                      className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
+                    >
+                      <span>Next</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                        <path fillRule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                       <span>Previous</span>
                     </button>
                     <div className="flex items-center gap-3">
@@ -316,12 +373,48 @@ function App() {
                             <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>
                               {item.title}
                             </p>
+                <div className="mt-6">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {paginatedProjects.map((item, index) => (
+                      <article
+                        key={`${item.title}-${index}`}
+                        className={`flex flex-col ${cardClass}`}
+                      >
+                        {item.image && (
+                          <img src={item.image} alt={item.title} className="mb-3 h-28 w-full rounded-xl object-cover" />
+                        )}
+                        <div className="flex w-full items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>
+                              {item.title}
+                            </p>
 
                             <p className={`mt-2 text-sm ${secondaryTextClass}`}>
                               {item.description}
                             </p>
                           </div>
+                            <p className={`mt-2 text-sm ${secondaryTextClass}`}>
+                              {item.description}
+                            </p>
+                          </div>
 
+                          <div className="flex items-center justify-end">
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`Open ${item.title}`}
+                              className={`flex items-center justify-center rounded-lg p-2 transition duration-200 hover:-translate-y-1 ${iconSurfaceClass} ${accentTextClass} ${accentHoverClass}`}
+                            >
+                              <svg xmlns="http://www.w3.org" viewBox="0 0 16 16" fill="currentColor" className="size-4">
+                                <path fillRule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
+                              </svg>
+                            </a>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                           <div className="flex items-center justify-end">
                             <a
                               href={item.link}
@@ -347,7 +440,26 @@ function App() {
                       disabled={pagination.projects === 1}
                       className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
                     >
+                  <div className={`mt-6 flex items-center justify-center gap-3 text-sm ${mutedTextClass}`}>
+                    <button
+                      type="button"
+                      onClick={() => goToPage('projects', pagination.projects - 1)}
+                      disabled={pagination.projects === 1}
+                      className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
+                    >
 
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="size-4"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
@@ -363,8 +475,22 @@ function App() {
 
                       <span>Previous</span>
                     </button>
+                      <span>Previous</span>
+                    </button>
 
 
+                    <div className="flex items-center gap-3">
+                      {Array.from({ length: projectPages }, (_, index) => (
+                        <button
+                          key={`project-${index + 1}`}
+                          type="button"
+                          onClick={() => goToPage('projects', index + 1)}
+                          className={`transition ${pagination.projects === index + 1 ? accentTextClass : `${accentHoverClass}`}`}
+                        >
+                          {index + 1}
+                        </button>
+                      ))}
+                    </div>
                     <div className="flex items-center gap-3">
                       {Array.from({ length: projectPages }, (_, index) => (
                         <button
@@ -386,8 +512,30 @@ function App() {
                       className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
                     >
                       <span>Next</span>
+                    <button
+                      type="button"
+                      onClick={() => goToPage('projects', pagination.projects + 1)}
+                      disabled={pagination.projects === projectPages}
+                      className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
+                    >
+                      <span>Next</span>
 
 
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="size-4"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
@@ -418,7 +566,15 @@ function App() {
             <a
               href="mailto:sponge27riz@gmail.com"
               className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
+              className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
             >
+
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+                <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
+                <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
+              </svg>
+
+
 
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                 <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
@@ -434,13 +590,19 @@ function App() {
               target="_blank"
               rel="noopener noreferrer"
               className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
+              className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
             >
+              {/* Menggunakan ikon SVG GitHub resmi */}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+              </svg>
               {/* Menggunakan ikon SVG GitHub resmi */}
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
                 <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
               </svg>
               GitHub
             </a>
+
 
           </div>
         </div>
