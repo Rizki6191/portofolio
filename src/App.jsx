@@ -172,7 +172,10 @@ function App() {
                 <p className={`text-xs uppercase tracking-[0.3em] ${accentTextClass}`}>Profile</p>
                 <h2 className={`mt-3 text-2xl font-bold ${headingTextClass}`}>Rizki Syahrul Ramadhan</h2>
                 <p className={`mt-2 text-sm leading-6 ${mutedTextClass}`}>
-                  Passionate IT enthusiast dengan spesialisasi di bidang pengembangan website dan cyber security. Saya memiliki kebiasaan merencanakan segala sesuatu secara matang dan terstruktur sebelum mengeksekusi sebuah proyek — mulai dari analisis kebutuhan, perancangan arsitektur, pemilihan teknologi, hingga implementasi keamanan.
+                  Saya adalah seorang yang memiliki minat dalam bidang pengembangan website, khususnya backend
+                  development, serta cyber security. Saya tertarik dalam membangun sistem backend yang terstruktur dan
+                  efektif serta terus mengembangkan kemampuan dalam memahami database, API, arsitektur sistem, dan
+                  keamanan aplikasi.
                 </p>
 
                 <div className={`mt-5 space-y-3 text-sm ${secondaryTextClass}`}>
@@ -182,7 +185,7 @@ function App() {
                   </div>
                   <div className={cardClass}>
                     <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>Stacks</p>
-                    <p className="mt-2">React Vite, Tailwind CSS, Laravel, and research tooling.</p>
+                    <p className="mt-2">React Vite, Tailwind CSS, fastAPI, and research tooling.</p>
                   </div>
                 </div>
               </div>
@@ -219,7 +222,7 @@ function App() {
                         )}
                         <div className="flex w-full items-start justify-between gap-4">
                           <div className="flex-1">
-                            <p className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}>{item.title}</p>
+                            <p className={`text-xs font-bold uppercase tracking-[0.25em] ${accentTextClass}`}>{item.title}</p>
                             <p className={`mt-2 text-sm ${secondaryTextClass}`}>{item.description}</p>
                           </div>
 
