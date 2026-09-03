@@ -1,9 +1,11 @@
 import projectLibrary from '../assets/project-library.svg'
 import projectPortfolio from '../assets/project-portfolio.svg'
-import writeupChall from '../assets/writeup-chall.svg'
 import media1 from '../assets/1.png'
 import media2 from '../assets/2.png'
 import media3 from '../assets/3.png'
+import media4 from '../assets/4.png'
+import media5 from '../assets/5.png'
+import media6 from '../assets/6.png'
 
 export const writeups = [
   {
@@ -28,15 +30,21 @@ export const writeups = [
 
 export const projects = [
   {
-    title: 'Library of Tenizen',
-    description: 'Library App',
-    link: 'https://github.com/Rizki6191/LibraryOfTenizen',
-    image: projectLibrary,
+    title: 'FORMALY',
+    description: 'All in one form builder.',
+    link: 'https://github.com/itzfurizugg/Formaly.git',
+    image: media5,
   },
   {
-    title: 'Portofolio',
-    description: 'My personal portofolio website',
-    link: 'https://github.com/Rizki6191/Portofolio',
-    image: projectPortfolio,
+    title: 'Portfolio',
+    description: 'My personal portfolio website.',
+    link: 'https://github.com/Rizki6191/portofolio.git',
+    image: media4,
+  },
+  {
+    title: 'CTF Blog',
+    description: 'A Blog App for My CTF Journey.',
+    link: 'https://github.com/Rizki6191/CTF-blog.git',
+    image: projectLibrary,
   },
 ]

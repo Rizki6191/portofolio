@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { projects, writeups } from './data/siteData'
 
-const profileImageUrl =
-  'https://res.cloudinary.com/ddknll80u/image/upload/v1785846664/image1_1_qkp0gf.jpg'
+import me from './assets/rizki.png'
+
+const profileImageUrl = me
 
 const ITEMS_PER_PAGE = 6
 
@@ -262,8 +263,8 @@ function App() {
                     </p>
 
                     <p className="mt-2">
-                      Scripting, code debugging, Data Flow Diagram,
-                      penetration testing.
+                      Scripting, Code Debugging, Data Flow Diagram,
+                      Penetration Testing.
                     </p>
                   </div>
 
@@ -275,8 +276,8 @@ function App() {
                     </p>
 
                     <p className="mt-2">
-                      React Vite, Tailwind CSS, fastAPI, and research
-                      tooling.
+                      React Vite, Tailwind CSS, fastAPI, Python3, research
+                      tooling and Pentesting Tools.
                     </p>
                   </div>
                 </div>
