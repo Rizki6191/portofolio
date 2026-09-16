@@ -1,15 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
 }
 
 :root {
   color-scheme: dark;
-  font-family: "JetBrains Mono", monospace;
-  background: #0f110f;
-  color: #d9ddd6;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #08090a;
+  color: #e2e8f0;
 }
 
 html {
@@ -21,20 +22,20 @@ html.theme-light {
 }
 
 html.theme-light body {
-  background: #f3f7ee;
-  color: #18231c;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 html.theme-dark body {
-  background: #0f110f;
-  color: #d9ddd6;
+  background: #08090a;
+  color: #e2e8f0;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: "JetBrains Mono", monospace;
+  overflow-x: hidden;
 }
 
 * {
@@ -47,4 +48,60 @@ a {
 
 button {
   font: inherit;
+}
+
+/* Custom Cyberpunk & Glassmorphic Utilities */
+.cyber-grid {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
+}
+
+.theme-light .cyber-grid {
+  background-image: 
+    linear-gradient(to right, rgba(16, 185, 129, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.06) 1px, transparent 1px);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.18);
+}
+
+.glow-emerald-lg {
+  box-shadow: 0 0 50px -5px rgba(16, 185, 129, 0.28);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08090a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
+
+/* Selection Highlight */
+::selection {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

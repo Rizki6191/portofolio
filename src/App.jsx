@@ -1,665 +1,518 @@
-import { useEffect, useState } from 'react'
-import { projects, writeups } from './data/siteData'
+import React, { useState, useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Search,
+  Terminal,
+  ArrowRight,
+  Sparkles,
+  Inbox,
+} from 'lucide-react'
 
-import me from './assets/rizki.png'
-
-const profileImageUrl = me
+import { profileData, navItems, writeups, projects } from './data/siteData'
+import { BackgroundGlow } from './components/BackgroundGlow'
+import { Navbar } from './components/Navbar'
+import { HeroSection } from './components/HeroSection'
+import { SectionHeader } from './components/SectionHeader'
+import { WriteupCard } from './components/WriteupCard'
+import { ProjectCard } from './components/ProjectCard'
+import { Pagination } from './components/Pagination'
+import { Footer } from './components/Footer'
 
 const ITEMS_PER_PAGE = 6
 
-function App() {
+export default function App() {
   const [page, setPage] = useState('home')
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('site-theme') || 'dark'
+    }
+    return 'dark'
+  })
+
+  const [writeupCategory, setWriteupCategory] = useState('All')
+  const [writeupSearch, setWriteupSearch] = useState('')
+  const [projectCategory, setProjectCategory] = useState('All')
+  const [projectSearch, setProjectSearch] = useState('')
+
   const [pagination, setPagination] = useState({
     writeups: 1,
     projects: 1,
   })
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState('dark')
 
   useEffect(() => {
-    document.documentElement.classList.toggle(
-      'theme-light',
-      theme === 'light',
-    )
-    document.documentElement.classList.toggle(
-      'theme-dark',
-      theme === 'dark',
-    )
+    document.documentElement.classList.toggle('theme-light', theme === 'light')
+    document.documentElement.classList.toggle('theme-dark', theme === 'dark')
     document.documentElement.style.colorScheme = theme
+    localStorage.setItem('site-theme', theme)
   }, [theme])
 
   const isDark = theme === 'dark'
 
-  const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'writeups', label: 'Writeups' },
-    { id: 'projects', label: 'Project' },
-  ]
+  // Scroll to top when changing tabs
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-  const paginatedWriteups = writeups.slice(
-    (pagination.writeups - 1) * ITEMS_PER_PAGE,
-    pagination.writeups * ITEMS_PER_PAGE,
-  )
+  // Categories extraction
+  const writeupCategories = useMemo(() => {
+    const categories = new Set(writeups.map((w) => w.category).filter(Boolean))
+    return ['All', ...Array.from(categories)]
+  }, [])
 
-  const paginatedProjects = projects.slice(
-    (pagination.projects - 1) * ITEMS_PER_PAGE,
-    pagination.projects * ITEMS_PER_PAGE,
-  )
+  const projectCategories = useMemo(() => {
+    const categories = new Set(projects.map((p) => p.category).filter(Boolean))
+    return ['All', ...Array.from(categories)]
+  }, [])
 
-  const writeupPages = Math.ceil(writeups.length / ITEMS_PER_PAGE)
-  const projectPages = Math.ceil(projects.length / ITEMS_PER_PAGE)
+  // Filtered lists
+  const filteredWriteups = useMemo(() => {
+    return writeups.filter((item) => {
+      const matchesCategory =
+        writeupCategory === 'All' || item.category === writeupCategory
+      const matchesSearch =
+        item.title.toLowerCase().includes(writeupSearch.toLowerCase()) ||
+        item.description.toLowerCase().includes(writeupSearch.toLowerCase()) ||
+        (item.tags &&
+          item.tags.some((t) =>
+            t.toLowerCase().includes(writeupSearch.toLowerCase()),
+          ))
+      return matchesCategory && matchesSearch
+    })
+  }, [writeupCategory, writeupSearch])
 
-  const hasWriteups = writeups.length > 0
-  const hasProjects = projects.length > 0
+  const filteredProjects = useMemo(() => {
+    return projects.filter((item) => {
+      const matchesCategory =
+        projectCategory === 'All' || item.category === projectCategory
+      const matchesSearch =
+        item.title.toLowerCase().includes(projectSearch.toLowerCase()) ||
+        item.description.toLowerCase().includes(projectSearch.toLowerCase()) ||
+        (item.tags &&
+          item.tags.some((t) =>
+            t.toLowerCase().includes(projectSearch.toLowerCase()),
+          ))
+      return matchesCategory && matchesSearch
+    })
+  }, [projectCategory, projectSearch])
 
-  const shellClass = isDark
-    ? 'min-h-screen bg-[#0f110f] text-[#d9ddd6]'
-    : 'min-h-screen bg-[#f3f7ee] text-[#18231c]'
+  // Paginated Slices
+  const paginatedWriteups = useMemo(() => {
+    const start = (pagination.writeups - 1) * ITEMS_PER_PAGE
+    return filteredWriteups.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredWriteups, pagination.writeups])
 
-  const headerClass = isDark
-    ? 'sticky top-0 z-20 border-b border-emerald-500/10 bg-black/25 backdrop-blur-xl'
-    : 'sticky top-0 z-20 border-b border-emerald-500/20 bg-white/70 backdrop-blur-xl'
+  const paginatedProjects = useMemo(() => {
+    const start = (pagination.projects - 1) * ITEMS_PER_PAGE
+    return filteredProjects.slice(start, start + ITEMS_PER_PAGE)
+  }, [filteredProjects, pagination.projects])
 
-  const sectionClass = isDark
-    ? 'rounded-2xl border border-emerald-500/10 bg-[#121512]/80 p-6'
-    : 'rounded-2xl border border-emerald-500/20 bg-white/80 p-6'
+  const writeupPages = Math.ceil(filteredWriteups.length / ITEMS_PER_PAGE)
+  const projectPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE)
 
-  const cardClass = isDark
-    ? 'rounded-2xl border border-emerald-500/10 bg-black/20 p-4'
-    : 'rounded-2xl border border-emerald-500/20 bg-[#f4f7ee] p-4'
-
-  const mutedTextClass = isDark ? 'text-[#b7c0b1]' : 'text-[#516357]'
-  const secondaryTextClass = isDark
-    ? 'text-[#d7ddd2]'
-    : 'text-[#2b3b2f]'
-
-  const headingTextClass = isDark
-    ? 'text-[#f3f5ef]'
-    : 'text-[#0f1712]'
-
-  const accentTextClass = isDark
-    ? 'text-emerald-300'
-    : 'text-emerald-700'
-
-  const accentHoverClass = isDark
-    ? 'hover:text-emerald-200'
-    : 'hover:text-emerald-600'
-
-  const navInactiveClass = isDark
-    ? 'text-[#b7c0b1] hover:text-emerald-300'
-    : 'text-[#4d5b4f] hover:text-emerald-700'
-
-  const activeNavClass = isDark
-    ? 'border border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
-    : 'border border-emerald-600/20 bg-emerald-100 text-emerald-700'
-
-  const iconButtonClass = isDark
-    ? 'text-emerald-300 hover:bg-white/5'
-    : 'text-emerald-700 hover:bg-emerald-100'
-
-  const menuClass = isDark
-    ? 'rounded-xl border border-emerald-500/10 bg-[#121512] p-2 shadow-xl'
-    : 'rounded-xl border border-emerald-500/20 bg-white/90 p-2 shadow-xl'
-
-  const footerBorderClass = isDark
-    ? 'border-t border-white/10'
-    : 'border-t border-emerald-500/10'
-
-  const iconSurfaceClass = isDark
-    ? 'bg-black/30'
-    : 'bg-white/70'
-
-  const goToPage = (section, nextPage) => {
-    setPagination((current) => ({
-      ...current,
-      [section]: nextPage,
-    }))
+  const pageVariants = {
+    initial: { opacity: 0, y: 15 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+    },
+    exit: { opacity: 0, y: -15, transition: { duration: 0.2 } },
   }
 
   return (
-    <div className={shellClass}>
-      <header className={headerClass}>
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div>
-              <p
-                className={`text-xs font-semibold uppercase tracking-[0.28em] ${accentTextClass}`}
-              >
-                Portofolio
-              </p>
-            </div>
-          </div>
+    <div
+      className={`relative min-h-screen selection:bg-emerald-500/20 selection:text-emerald-300 transition-colors duration-300 ${
+        isDark ? 'bg-[#08090a] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
+      }`}
+    >
+      {/* Background Ambient Glow & Grid Mesh */}
+      <BackgroundGlow isDark={isDark} />
 
-          <nav className="relative flex items-center gap-2">
-            <div className="hidden items-center gap-2 md:flex">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setPage(item.id)}
-                  className={`px-4 py-2 text-sm transition ${
-                    page === item.id ? activeNavClass : navInactiveClass
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+      {/* Floating Glassmorphism Navigation */}
+      <Navbar
+        page={page}
+        setPage={handlePageChange}
+        theme={theme}
+        setTheme={setTheme}
+        navItems={navItems}
+        profileData={profileData}
+      />
 
-            <button
-              type="button"
-              onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              aria-label={`Switch to ${
-                isDark ? 'light' : 'dark'
-              } mode`}
-              className={`flex items-center justify-center rounded-lg p-2 transition ${iconButtonClass}`}
+      {/* Main Content Area */}
+      <main className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <AnimatePresence mode="wait">
+          {page === 'home' && (
+            <motion.div
+              key="home"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="space-y-16 sm:space-y-24"
             >
-              {isDark ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="size-4"
-                >
-                  <path d="M8 1.75a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0V2.5A.75.75 0 0 1 8 1.75ZM8 12.25a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0v-1a.75.75 0 0 1 .75-.75ZM3.5 8a.75.75 0 0 1 .75-.75h1a.75.75 0 0 1 0 1.5h-1A.75.75 0 0 1 3.5 8ZM11.75 7.25h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 1 0-1.5ZM4.03 4.03a.75.75 0 0 1 1.06 0l.7.7a.75.75 0 1 1-1.06 1.06l-.7-.7a.75.75 0 0 1 0-1.06ZM10.21 10.21a.75.75 0 0 1 1.06 0l.7.7a.75.75 0 1 1-1.06 1.06l-.7-.7a.75.75 0 0 1 0-1.06ZM4.03 11.97a.75.75 0 0 1 0-1.06l.7-.7a.75.75 0 1 1 1.06 1.06l-.7.7a.75.75 0 0 1-1.06 0ZM10.21 5.79a.75.75 0 0 1 0-1.06l.7-.7a.75.75 0 1 1 1.06 1.06l-.7.7a.75.75 0 0 1-1.06 0ZM8 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="size-4"
-                >
-                  <path d="M12.25 10.8A5.75 5.75 0 0 1 5.2 3.75a5.75 5.75 0 1 0 7.05 7.05Z" />
-                </svg>
-              )}
-            </button>
+              {/* Profile Executive Hero */}
+              <HeroSection
+                profileData={profileData}
+                setPage={handlePageChange}
+                isDark={isDark}
+              />
 
-            <div className="md:hidden">
-              <button
-                type="button"
-                onClick={() => setMenuOpen((current) => !current)}
-                aria-label="Open menu"
-                className={`flex items-center justify-center rounded-lg p-2 transition ${iconButtonClass}`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="size-5"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M2 3.75A.75.75 0 0 1 2.75 3h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75ZM2 8a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm0 4.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"
-                    clipRule="evenodd"
+              {/* Featured CTF Writeups Section */}
+              <section className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <SectionHeader
+                    eyebrow="Security Research"
+                    title="Featured CySec Writeups"
+                    description="Deep-dives into binary exploitation, format string vulnerabilities, and low-level memory corruption."
+                    isDark={isDark}
                   />
-                </svg>
-              </button>
 
-              {menuOpen && (
-                <div
-                  className={`absolute right-0 top-12 z-30 w-40 ${menuClass}`}
-                >
-                  {navItems.map((item) => (
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange('writeups')}
+                    className={`inline-flex items-center gap-2 font-mono text-xs font-semibold transition-colors cursor-pointer self-start sm:self-auto ${
+                      isDark
+                        ? 'text-emerald-400 hover:text-emerald-300'
+                        : 'text-emerald-700 hover:text-emerald-800'
+                    }`}
+                  >
+                    <span>View All Writeups</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {writeups.slice(0, 3).map((item, index) => (
+                    <WriteupCard
+                      key={item.id || item.title}
+                      item={item}
+                      index={index}
+                      isDark={isDark}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Featured Projects Section */}
+              <section className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <SectionHeader
+                    eyebrow="Engineering"
+                    title="Highlighted Projects"
+                    description="Web applications, architectural prototypes, and security tooling."
+                    isDark={isDark}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange('projects')}
+                    className={`inline-flex items-center gap-2 font-mono text-xs font-semibold transition-colors cursor-pointer self-start sm:self-auto ${
+                      isDark
+                        ? 'text-emerald-400 hover:text-emerald-300'
+                        : 'text-emerald-700 hover:text-emerald-800'
+                    }`}
+                  >
+                    <span>View All Projects</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {projects.slice(0, 3).map((item, index) => (
+                    <ProjectCard
+                      key={item.id || item.title}
+                      item={item}
+                      index={index}
+                      isDark={isDark}
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Call to Collaboration Terminal Banner */}
+              <section
+                className={`relative overflow-hidden rounded-3xl border p-8 sm:p-12 backdrop-blur-xl ${
+                  isDark
+                    ? 'border-emerald-500/20 bg-gradient-to-br from-emerald-950/20 via-[#0a0f0d] to-[#08090a] shadow-[0_0_50px_rgba(16,185,129,0.08)]'
+                    : 'border-emerald-600/20 bg-gradient-to-br from-emerald-50/60 via-white to-slate-50 shadow-lg'
+                }`}
+              >
+                <div className="relative z-10 max-w-2xl space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs text-emerald-400">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>OPEN FOR COLLABORATION</span>
+                  </div>
+
+                  <h3
+                    className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                      isDark ? 'text-white' : 'text-slate-900'
+                    }`}
+                  >
+                    Interested in building secure backends or tackling security challenges together?
+                  </h3>
+
+                  <p
+                    className={`text-sm sm:text-base leading-relaxed ${
+                      isDark ? 'text-slate-300' : 'text-slate-600'
+                    }`}
+                  >
+                    Feel free to reach out for backend development roles, security auditing collaborations, or CTF teamups.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    {profileData.socials?.email && (
+                      <a
+                        href={`mailto:${profileData.socials.email}`}
+                        className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 font-mono text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                          isDark
+                            ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                            : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                        }`}
+                      >
+                        <span>Send Message</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
+                    )}
+
+                    {profileData.socials?.github && (
+                      <a
+                        href={profileData.socials.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 font-mono text-xs sm:text-sm font-medium transition-colors ${
+                          isDark
+                            ? 'border-white/10 bg-white/5 text-slate-300 hover:text-white hover:border-white/20'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                        }`}
+                      >
+                        <span>Explore GitHub</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Decorative Terminal watermark */}
+                <Terminal className="pointer-events-none absolute right-4 -bottom-10 h-64 w-64 text-emerald-500/5 rotate-12" />
+              </section>
+            </motion.div>
+          )}
+
+          {page === 'writeups' && (
+            <motion.div
+              key="writeups"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="space-y-8"
+            >
+              <SectionHeader
+                eyebrow="Security Archives"
+                title="CTF & Binary Exploitation Writeups"
+                description="Technical breakdowns of vulnerabilities, exploit development payloads, and ELF x86_64 reverse engineering proofs."
+                isDark={isDark}
+              />
+
+              {/* Filters & Search Controls */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-between items-stretch sm:items-center">
+                {/* Category Pills */}
+                <div className="flex flex-wrap gap-2">
+                  {writeupCategories.map((cat) => (
                     <button
-                      key={item.id}
+                      key={cat}
                       type="button"
                       onClick={() => {
-                        setPage(item.id)
-                        setMenuOpen(false)
+                        setWriteupCategory(cat)
+                        setPagination((prev) => ({ ...prev, writeups: 1 }))
                       }}
-                      className={`mt-1 block w-full rounded-lg px-4 py-3 text-left text-sm transition ${
-                        page === item.id
-                          ? activeNavClass
-                          : navInactiveClass
+                      className={`rounded-xl border px-3.5 py-1.5 font-mono text-xs transition-all duration-200 cursor-pointer ${
+                        writeupCategory === cat
+                          ? isDark
+                            ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                            : 'border-emerald-600 bg-emerald-100 text-emerald-800 font-semibold'
+                          : isDark
+                          ? 'border-white/10 bg-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      {item.label}
+                      {cat}
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
-          </nav>
-        </div>
-      </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10 lg:px-8">
-        {page === 'home' && (
-          <section>
-            <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-              <div className={sectionClass}>
-                <p
-                  className={`text-xs uppercase tracking-[0.3em] ${accentTextClass}`}
-                >
-                  Profile
-                </p>
-
-                <h2
-                  className={`mt-3 text-2xl font-bold ${headingTextClass}`}
-                >
-                  Rizki Syahrul Ramadhan
-                </h2>
-
-                <p
-                  className={`mt-2 text-sm leading-6 ${mutedTextClass}`}
-                >
-                  Saya adalah seorang yang memiliki minat dalam bidang
-                  pengembangan website, khususnya backend development,
-                  serta cyber security. Saya tertarik dalam membangun
-                  sistem backend yang terstruktur dan efektif serta terus
-                  mengembangkan kemampuan dalam memahami database, API,
-                  arsitektur sistem, dan keamanan aplikasi.
-                </p>
-
-                <div
-                  className={`mt-5 space-y-3 text-sm ${secondaryTextClass}`}
-                >
-                  <div className={cardClass}>
-                    <p
-                      className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}
-                    >
-                      Skills
-                    </p>
-
-                    <p className="mt-2">
-                      Scripting, Code Debugging, Data Flow Diagram,
-                      Penetration Testing.
-                    </p>
-                  </div>
-
-                  <div className={cardClass}>
-                    <p
-                      className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}
-                    >
-                      Stacks
-                    </p>
-
-                    <p className="mt-2">
-                      React Vite, Tailwind CSS, fastAPI, Python3, research
-                      tooling and Pentesting Tools.
-                    </p>
-                  </div>
+                {/* Search Bar */}
+                <div className="relative min-w-[240px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={writeupSearch}
+                    onChange={(e) => {
+                      setWriteupSearch(e.target.value)
+                      setPagination((prev) => ({ ...prev, writeups: 1 }))
+                    }}
+                    placeholder="Search writeups, tags..."
+                    className={`w-full rounded-xl border pl-9 pr-4 py-2 font-mono text-xs transition-all duration-200 focus:outline-none ${
+                      isDark
+                        ? 'border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.07]'
+                        : 'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-emerald-600'
+                    }`}
+                  />
                 </div>
               </div>
 
-              <div className="order-first lg:order-none">
-                <div className="mx-auto flex max-w-sm justify-center lg:max-w-none">
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-emerald-500/20 to-emerald-400/5 blur-2xl lg:rounded-[2.5rem]" />
-
-                    <img
-                      src={profileImageUrl}
-                      alt="Rizki Syahrul Ramadhan"
-                      className="relative h-64 w-64 max-w-[16rem] rounded-[1.75rem] border-2 border-emerald-500/30 object-cover object-center shadow-lg shadow-emerald-500/20 sm:h-72 sm:w-72 sm:max-w-[18rem] lg:h-[20rem] lg:w-[16rem] lg:rounded-[2rem] lg:border-2"
-                    />
-
-                    <div className="absolute -inset-1 rounded-[1.75rem] border border-emerald-500/20 lg:rounded-[2rem]" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {page === 'writeups' && (
-          <section className={sectionClass}>
-            <p
-              className={`text-xs uppercase tracking-[0.3em] ${accentTextClass}`}
-            >
-              writeups
-            </p>
-
-            {hasWriteups ? (
-              <div className="mt-6">
-                <div className="grid gap-4 md:grid-cols-3">
+              {/* Writeup Cards Grid */}
+              {paginatedWriteups.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {paginatedWriteups.map((item, index) => (
-                    <article
-                      key={`${item.title}-${index}`}
-                      className={`flex flex-col ${cardClass}`}
-                    >
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="mb-3 h-28 w-full rounded-xl object-cover"
-                        />
-                      )}
-
-                      <div className="flex w-full items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <p
-                            className={`text-xs font-bold uppercase tracking-[0.25em] ${accentTextClass}`}
-                          >
-                            {item.title}
-                          </p>
-
-                          <p
-                            className={`mt-2 text-sm ${secondaryTextClass}`}
-                          >
-                            {item.description}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-end">
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Open ${item.title}`}
-                            className={`flex items-center justify-center rounded-lg p-2 transition duration-200 hover:-translate-y-1 ${iconSurfaceClass} ${accentTextClass} ${accentHoverClass}`}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 16 16"
-                              fill="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </a>
-                        </div>
-                      </div>
-                    </article>
+                    <WriteupCard
+                      key={item.id || item.title}
+                      item={item}
+                      index={index}
+                      isDark={isDark}
+                    />
                   ))}
                 </div>
-
+              ) : (
                 <div
-                  className={`mt-6 flex items-center justify-center gap-3 text-sm ${mutedTextClass}`}
+                  className={`rounded-2xl border border-dashed p-12 text-center backdrop-blur-md ${
+                    isDark
+                      ? 'border-white/10 bg-white/[0.02] text-slate-400'
+                      : 'border-slate-200 bg-white text-slate-600'
+                  }`}
                 >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goToPage(
-                        'writeups',
-                        pagination.writeups - 1,
-                      )
-                    }
-                    disabled={pagination.writeups === 1}
-                    className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-
-                    <span>Previous</span>
-                  </button>
-
-                  <div className="flex items-center gap-3">
-                    {Array.from(
-                      { length: writeupPages },
-                      (_, index) => (
-                        <button
-                          key={`writeup-${index + 1}`}
-                          type="button"
-                          onClick={() =>
-                            goToPage('writeups', index + 1)
-                          }
-                          className={`transition ${
-                            pagination.writeups === index + 1
-                              ? accentTextClass
-                              : accentHoverClass
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      ),
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goToPage(
-                        'writeups',
-                        pagination.writeups + 1,
-                      )
-                    }
-                    disabled={pagination.writeups === writeupPages}
-                    className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
-                  >
-                    <span>Next</span>
-
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
+                  <Inbox className="mx-auto h-8 w-8 text-slate-500 mb-3" />
+                  <p className="font-mono text-sm font-semibold">No Writeups Found</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Try adjusting your search query or selected category filter.
+                  </p>
                 </div>
-              </div>
-            ) : (
-              <div
-                className={`mt-6 rounded-2xl border border-dashed border-emerald-500/20 ${iconSurfaceClass} px-6 py-10 text-center text-sm ${mutedTextClass}`}
-              >
-                404
-              </div>
-            )}
-          </section>
-        )}
+              )}
 
-        {page === 'projects' && (
-          <section className={sectionClass}>
-            <p
-              className={`text-xs uppercase tracking-[0.3em] ${accentTextClass}`}
+              {/* Pagination */}
+              <Pagination
+                currentPage={pagination.writeups}
+                totalPages={writeupPages}
+                onPageChange={(nextPage) =>
+                  setPagination((prev) => ({ ...prev, writeups: nextPage }))
+                }
+                isDark={isDark}
+              />
+            </motion.div>
+          )}
+
+          {page === 'projects' && (
+            <motion.div
+              key="projects"
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="space-y-8"
             >
-              projects
-            </p>
+              <SectionHeader
+                eyebrow="Engineering Showcase"
+                title="Featured Software & Tools"
+                description="Engineered web systems, responsive frontend interfaces, and developer utility projects."
+                isDark={isDark}
+              />
 
-            {hasProjects ? (
-              <div className="mt-6">
-                <div className="grid gap-4 md:grid-cols-3">
-                  {paginatedProjects.map((item, index) => (
-                    <article
-                      key={`${item.title}-${index}`}
-                      className={`flex flex-col ${cardClass}`}
+              {/* Filters & Search Controls */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-between items-stretch sm:items-center">
+                {/* Category Pills */}
+                <div className="flex flex-wrap gap-2">
+                  {projectCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        setProjectCategory(cat)
+                        setPagination((prev) => ({ ...prev, projects: 1 }))
+                      }}
+                      className={`rounded-xl border px-3.5 py-1.5 font-mono text-xs transition-all duration-200 cursor-pointer ${
+                        projectCategory === cat
+                          ? isDark
+                            ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                            : 'border-emerald-600 bg-emerald-100 text-emerald-800 font-semibold'
+                          : isDark
+                          ? 'border-white/10 bg-white/5 text-slate-400 hover:text-white hover:border-white/20'
+                          : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900'
+                      }`}
                     >
-                      {item.image && (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="mb-3 h-28 w-full rounded-xl object-cover"
-                        />
-                      )}
-
-                      <div className="flex w-full items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <p
-                            className={`text-xs uppercase tracking-[0.25em] ${accentTextClass}`}
-                          >
-                            {item.title}
-                          </p>
-
-                          <p
-                            className={`mt-2 text-sm ${secondaryTextClass}`}
-                          >
-                            {item.description}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-end">
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Open ${item.title}`}
-                            className={`flex items-center justify-center rounded-lg p-2 transition duration-200 hover:-translate-y-1 ${iconSurfaceClass} ${accentTextClass} ${accentHoverClass}`}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 16 16"
-                              fill="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </a>
-                        </div>
-                      </div>
-                    </article>
+                      {cat}
+                    </button>
                   ))}
                 </div>
 
-                <div
-                  className={`mt-6 flex items-center justify-center gap-3 text-sm ${mutedTextClass}`}
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goToPage(
-                        'projects',
-                        pagination.projects - 1,
-                      )
-                    }
-                    disabled={pagination.projects === 1}
-                    className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-
-                    <span>Previous</span>
-                  </button>
-
-                  <div className="flex items-center gap-3">
-                    {Array.from(
-                      { length: projectPages },
-                      (_, index) => (
-                        <button
-                          key={`project-${index + 1}`}
-                          type="button"
-                          onClick={() =>
-                            goToPage('projects', index + 1)
-                          }
-                          className={`transition ${
-                            pagination.projects === index + 1
-                              ? accentTextClass
-                              : accentHoverClass
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      ),
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goToPage(
-                        'projects',
-                        pagination.projects + 1,
-                      )
-                    }
-                    disabled={pagination.projects === projectPages}
-                    className={`flex items-center gap-2 transition ${accentHoverClass} disabled:cursor-not-allowed disabled:opacity-40`}
-                  >
-                    <span>Next</span>
-
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 1 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
+                {/* Search Bar */}
+                <div className="relative min-w-[240px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={projectSearch}
+                    onChange={(e) => {
+                      setProjectSearch(e.target.value)
+                      setPagination((prev) => ({ ...prev, projects: 1 }))
+                    }}
+                    placeholder="Search projects, tags..."
+                    className={`w-full rounded-xl border pl-9 pr-4 py-2 font-mono text-xs transition-all duration-200 focus:outline-none ${
+                      isDark
+                        ? 'border-white/10 bg-white/5 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.07]'
+                        : 'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-emerald-600'
+                    }`}
+                  />
                 </div>
               </div>
-            ) : (
-              <div
-                className={`mt-6 rounded-2xl border border-dashed border-emerald-500/20 ${iconSurfaceClass} px-6 py-10 text-center text-sm ${mutedTextClass}`}
-              >
-                404
-              </div>
-            )}
-          </section>
-        )}
+
+              {/* Projects Grid */}
+              {paginatedProjects.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {paginatedProjects.map((item, index) => (
+                    <ProjectCard
+                      key={item.id || item.title}
+                      item={item}
+                      index={index}
+                      isDark={isDark}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div
+                  className={`rounded-2xl border border-dashed p-12 text-center backdrop-blur-md ${
+                    isDark
+                      ? 'border-white/10 bg-white/[0.02] text-slate-400'
+                      : 'border-slate-200 bg-white text-slate-600'
+                  }`}
+                >
+                  <Inbox className="mx-auto h-8 w-8 text-slate-500 mb-3" />
+                  <p className="font-mono text-sm font-semibold">No Projects Found</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Try adjusting your search query or selected category filter.
+                  </p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              <Pagination
+                currentPage={pagination.projects}
+                totalPages={projectPages}
+                onPageChange={(nextPage) =>
+                  setPagination((prev) => ({ ...prev, projects: nextPage }))
+                }
+                isDark={isDark}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
-      <footer>
-        <div
-          className={`mx-auto max-w-5xl ${footerBorderClass}`}
-        >
-          <div className="flex items-center justify-center gap-6 px-6 py-5 md:justify-end lg:px-8">
-            <a
-              href="mailto:sponge27riz@gmail.com"
-              className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-6"
-              >
-                <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
-                <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
-              </svg>
-
-              Contact
-            </a>
-
-            <a
-              href="https://github.com/Rizki6191"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center gap-2 text-lg transition hover:underline md:text-xl ${accentTextClass}`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-5"
-              >
-                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-              </svg>
-
-              GitHub
-            </a>
-          </div>
-        </div>
-      </footer>
+      {/* Luxury Terminal-style Footer */}
+      <Footer
+        profileData={profileData}
+        navItems={navItems}
+        setPage={handlePageChange}
+        isDark={isDark}
+      />
     </div>
   )
 }
-
-export default App
-
